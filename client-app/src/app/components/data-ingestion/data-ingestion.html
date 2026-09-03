@@ -1,0 +1,78 @@
+<div class="container" dir="rtl">
+  <h2>מסך 3: קליטת נתונים למדד וצפייה בנתונים</h2>
+
+  <!-- חלק 1: טופס קליטת קובץ -->
+  <section class="card">
+    <h3>קליטת קובץ Excel חדש</h3>
+    <form [formGroup]="uploadForm" (ngSubmit)="onUpload()">
+      <div class="form-group">
+        <label>בחר מדד:</label>
+        <select formControlName="measureId">
+          <option value="">-- בחר מדד --</option>
+          <option *ngFor="let m of measures" [value]="m.id">{{ m.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>שנה:</label>
+        <input type="number" formControlName="year" />
+      </div>
+
+      <div class="form-group">
+        <label>תקופה (לדוגמה: רבעון 1 / חודש אפריל):</label>
+        <input type="text" formControlName="period" placeholder="רבעון 1" />
+      </div>
+
+      <div class="form-group">
+        <label>קובץ Excel:</label>
+        <input type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" />
+      </div>
+
+      <button type="submit" [disabled]="uploadForm.invalid || isLoading">
+        {{ isLoading ? 'מעבד...' : 'קלוט קובץ' }}
+      </button>
+    </form>
+  </section>
+
+  <hr />
+
+  <!-- חלק 2: צפייה בנתונים שנקלטו -->
+  <section class="card">
+    <h3>צפייה בנתונים שנקלטו</h3>
+    
+    <div class="controls">
+      <div class="form-group">
+        <label>הצג נתונים עבור מדד:</label>
+        <select (change)="onMeasureViewChange($event)">
+          <option value="">-- בחר מדד לצפייה --</option>
+          <option *ngFor="let m of measures" [value]="m.id">{{ m.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="selectedMeasureIdForView">
+        <label>חיפוש / סינון:</label>
+        <input type="text" placeholder="הקלד לחיפוש..." (input)="onSearch($event)" />
+      </div>
+    </div>
+
+    <!-- טבלה דינמית -->
+    <div class="table-container" *ngIf="columns.length > 0; else noData">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let col of columns">{{ col }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of tableData">
+            <th *ngFor="let col of columns">{{ row[col] }}</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noData>
+      <p *ngIf="selectedMeasureIdForView && !isLoading">לא נמצאו נתונים עבור מדד זה.</p>
+    </ng-template>
+  </section>
+</div>
